@@ -16,13 +16,13 @@ import {
   Label,
   Submit,
 } from "@radix-ui/react-form";
-import { ReloadIcon, LoopIcon } from "@radix-ui/react-icons";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 import { cn, twc } from "@/lib/tailwind";
 import { Label as ShadcnLabel } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
-type FormContextValue = { errors?: Record<string, string[]> };
+export type FormContextValue = { errors?: Record<string, string[]> };
 const FormContext = createContext<FormContextValue>({ errors: {} });
 
 type FormRootProps = Omit<ComponentPropsWithoutRef<typeof Root>, "action"> & {
@@ -43,6 +43,9 @@ const FormRoot = forwardRef<HTMLFormElement, FormRootProps>(
 );
 FormRoot.displayName = "FormRoot";
 
+const FormMessage = twc(Message)`text-sm font-medium text-destructive`;
+FormMessage.displayName = "FormMessage";
+
 const FormField = forwardRef<
   HTMLDivElement,
   ComponentPropsWithoutRef<typeof Field>
@@ -56,7 +59,12 @@ const FormField = forwardRef<
       name={name}
       ref={ref}
       serverInvalid={!!state.errors?.[name]}
-    ></Field>
+    >
+      {children}
+      {state.errors?.[name]?.map((error) => (
+        <FormMessage key={error}>{error}</FormMessage>
+      ))}
+    </Field>
   );
 });
 FormField.displayName = "FormField";
@@ -74,9 +82,6 @@ const FormLabel = forwardRef<
 ));
 FormLabel.displayName = "FormLabel";
 
-const FormMessage = twc(Message)`text-sm font-medium text-destructive`;
-FormMessage.displayName = "FormMessage";
-
 const FormSubmit = forwardRef<
   HTMLButtonElement,
   ComponentPropsWithoutRef<typeof Button>
@@ -86,7 +91,7 @@ const FormSubmit = forwardRef<
   return (
     <Submit asChild>
       <Button>
-        {status.pending && <LoopIcon className="mr-2 h-4 w-4 animate-spin" />}
+        {status.pending && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
         {children}
       </Button>
     </Submit>
